@@ -35,6 +35,40 @@ info:
   title: NTMonitor API
   version: "1.0"
 paths:
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email and profile data
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
   /api/users:
     get:
       description: Retrieve a list of all users

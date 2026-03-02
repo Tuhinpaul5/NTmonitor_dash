@@ -36,11 +36,12 @@ func main() {
 	userRepo := repository.NewUserRepository(conn)
 	userHand := handlers.NewUserHandler(userRepo)
 
+        authHand := handlers.NewAuthHandler(userRepo)
 	app := fiber.New(fiber.Config{
 		AppName: "NTMonitor v1.0",
 	})
 
-	router.SetupRoutes(app, userHand)
+	router.SetupRoutes(app, userHand, authHand)
 
 	port := os.Getenv("PORT")
 	if port == "" {

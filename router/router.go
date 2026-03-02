@@ -7,17 +7,20 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
-    "github.com/gofiber/fiber/v2/middleware/cors" // Add this
+	"github.com/gofiber/fiber/v2/middleware/cors" // Add this
 )
 
-func SetupRoutes(app *fiber.App, userHand *handlers.UserHandler) {
+func SetupRoutes(
+	app *fiber.App, 
+	userHand *handlers.UserHandler, 
+	authHand *handlers.AuthHandler,
+	) {
 	app.Use(cors.New(cors.Config{
-        AllowOrigins: "*", // Allow all origins for development
-        AllowHeaders: "Origin, Content-Type, Accept",
-        AllowMethods: "GET, POST, PUT, DELETE",
-    }))
-	
-	
+		AllowOrigins: "*", // Allow all origins for development
+		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowMethods: "GET, POST, PUT, DELETE",
+	}))
+
 	app.Use(logger.New())
 
 	// 1. Serve the generated Swagger JSON from the /docs folder
@@ -52,4 +55,5 @@ func SetupRoutes(app *fiber.App, userHand *handlers.UserHandler) {
 	// Versioned Group
 	api := app.Group("/api")
 	RegisterUserRoutes(api, userHand)
+	RegisterAuthRoutes(api, authHand)
 }

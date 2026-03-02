@@ -6,9 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// RegisterUserRoutes handles all /api/v1/users/... endpoints
-func RegisterUserRoutes(v1 fiber.Router, h *handlers.UserHandler) {
-	users := v1.Group("/users")
+// RegisterUserRoutes handles all /api/users/... endpoints
+func RegisterUserRoutes(app fiber.Router, h *handlers.UserHandler) {
+	users := app.Group("/users")
 
 	users.Post("/", h.CreateUser)
 	users.Get("/", h.GetUsers)
