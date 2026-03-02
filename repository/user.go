@@ -2,6 +2,7 @@ package repository
 
 import (
 	"NTMonitor/models"
+
 	"gorm.io/gorm"
 )
 

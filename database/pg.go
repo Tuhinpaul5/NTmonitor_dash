@@ -3,7 +3,7 @@ package database
 import (
 	"NTMonitor/models"
 	"log"
-	
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -16,6 +16,6 @@ func Connect(dsn string) *gorm.DB {
 
 	// Auto-migrate the schemas
 	db.AutoMigrate(&models.User{}, &models.UserData{})
-	
+
 	return db
 }

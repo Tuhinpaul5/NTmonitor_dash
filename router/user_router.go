@@ -2,6 +2,7 @@ package router
 
 import (
 	"NTMonitor/handlers"
+
 	"github.com/gofiber/fiber/v2"
 )
 
