@@ -38,12 +38,12 @@ const docTemplate = `{
                 "summary": "Register a new user",
                 "parameters": [
                     {
-                        "description": "User object",
-                        "name": "user",
+                        "description": "Registration Data",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/dto.RegisterRequest"
                         }
                     }
                 ],
@@ -197,6 +197,48 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "country",
+                "email",
+                "password",
+                "phone",
+                "username"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "default": "123 Main Street, City, Country"
+                },
+                "bio": {
+                    "type": "string",
+                    "default": "User bio description"
+                },
+                "country": {
+                    "type": "string",
+                    "default": "India"
+                },
+                "email": {
+                    "type": "string",
+                    "default": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "default": "password123",
+                    "minLength": 8
+                },
+                "phone": {
+                    "type": "string",
+                    "default": "+1234567890"
+                },
+                "username": {
+                    "type": "string",
+                    "default": "user123"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
@@ -209,6 +251,29 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_verified": {
+                    "description": "Email verification status",
+                    "type": "boolean"
+                },
+                "status": {
+                    "description": "Account status",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.UserStatus"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "Role: user/admin",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.UserType"
+                        }
+                    ]
+                },
+                "updated_at": {
+                    "type": "string"
+                },
                 "userdata": {
                     "description": "One-to-One relationship",
                     "allOf": [
@@ -216,22 +281,73 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.UserData"
                         }
                     ]
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
         "models.UserData": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "bio": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
+                "ip": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
                 "user_id": {
                     "type": "integer"
                 }
             }
+        },
+        "models.UserStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "suspended",
+                "pending"
+            ],
+            "x-enum-varnames": [
+                "UserStatusActive",
+                "UserStatusInactive",
+                "UserStatusSuspended",
+                "UserStatusPending"
+            ]
+        },
+        "models.UserType": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "moderator",
+                "user",
+                "guest"
+            ],
+            "x-enum-varnames": [
+                "UserTypeAdmin",
+                "UserTypeModerator",
+                "UserTypeUser",
+                "UserTypeGuest"
+            ]
         }
     }
 }`

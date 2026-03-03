@@ -11,10 +11,12 @@ import (
 )
 
 func SetupRoutes(
-	app *fiber.App, 
-	userHand *handlers.UserHandler, 
+	app *fiber.App,
+	userHand *handlers.UserHandler,
 	authHand *handlers.AuthHandler,
-	) {
+) {
+
+	
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*", // Allow all origins for development
 		AllowHeaders: "Origin, Content-Type, Accept",

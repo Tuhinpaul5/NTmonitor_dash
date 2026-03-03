@@ -3,9 +3,9 @@ package handlers
 import (
 	"NTMonitor/models"
 	"NTMonitor/repository"
-
 	"github.com/gofiber/fiber/v2"
 )
+
 
 type UserHandler struct {
 	Repo *repository.UserRepository

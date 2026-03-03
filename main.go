@@ -40,6 +40,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "NTMonitor v1.0",
 	})
+	
 
 	router.SetupRoutes(app, userHand, authHand)
 
