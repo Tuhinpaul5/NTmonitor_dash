@@ -8,6 +8,7 @@ import (
 	"NTMonitor/handlers"
 	"NTMonitor/repository"
 	"NTMonitor/router"
+	"NTMonitor/services"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -30,17 +31,17 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: .env file not found, using system env")
 	}
+	m := mailer.New()
 
 	conn := database.Connect(os.Getenv("DBURL"))
 
 	userRepo := repository.NewUserRepository(conn)
 	userHand := handlers.NewUserHandler(userRepo)
 
-        authHand := handlers.NewAuthHandler(userRepo)
+	authHand := handlers.NewAuthHandler(userRepo, m)
 	app := fiber.New(fiber.Config{
 		AppName: "NTMonitor v1.0",
 	})
-	
 
 	router.SetupRoutes(app, userHand, authHand)
 
