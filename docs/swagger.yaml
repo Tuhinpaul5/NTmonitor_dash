@@ -35,15 +35,16 @@ definitions:
       email:
         default: user@example.com
         type: string
-      otp:
-        default: 123456
-        type: integer
       password:
         default: password123
         minLength: 8
         type: string
       phone:
         default: "+1234567890"
+        type: string
+      token:
+        default: test_token
+        description: OTP token for registration
         type: string
       username:
         default: user123
@@ -52,9 +53,9 @@ definitions:
     - address
     - country
     - email
-    - otp
     - password
     - phone
+    - token
     - username
     type: object
   dto.VerifyOTPRequest:
@@ -63,8 +64,10 @@ definitions:
         default: user@example.com
         type: string
       otp:
-        default: "123456"
-        type: string
+        default: 123456
+        maximum: 999999
+        minimum: 100000
+        type: integer
     required:
     - email
     - otp
@@ -76,7 +79,7 @@ definitions:
       email:
         type: string
       id:
-        type: integer
+        type: string
       is_verified:
         description: Email verification status
         type: boolean
@@ -108,7 +111,7 @@ definitions:
       created_at:
         type: string
       id:
-        type: integer
+        type: string
       ip:
         type: string
       phone:
@@ -116,7 +119,7 @@ definitions:
       updated_at:
         type: string
       user_id:
-        type: integer
+        type: string
     type: object
   models.UserStatus:
     enum:
@@ -187,6 +190,27 @@ paths:
               type: string
             type: object
       summary: User login
+      tags:
+      - auth
+  /api/auth/logout:
+    post:
+      description: Log out the authenticated user by destroying the session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User logout
       tags:
       - auth
   /api/auth/register:
@@ -343,9 +367,11 @@ paths:
       summary: Create a new user
       tags:
       - users
-  /api/users/id/{id}:
+  /api/users/{id}:
     get:
-      description: Retrieve a single user by their ID
+      consumes:
+      - application/json
+      description: Retrieve a user by their unique ID
       parameters:
       - description: User ID
         in: path
@@ -359,8 +385,20 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
           schema:
             additionalProperties:
               type: string

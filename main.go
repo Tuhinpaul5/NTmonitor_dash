@@ -2,16 +2,15 @@ package main
 
 import (
 	"log"
-	"os"
 
+	"NTMonitor/config"
 	"NTMonitor/database"
 	"NTMonitor/handlers"
 	"NTMonitor/repository"
 	"NTMonitor/router"
 	"NTMonitor/services"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
+	"github.com/gofiber/fiber/v3"
 )
 
 //	@title			NTMonitor API
@@ -28,28 +27,27 @@ import (
 // @host		localhost:8000
 // @BasePath	/
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("Warning: .env file not found, using system env")
-	}
-	m := mailer.New()
+	cfg := config.LoadConfig()
 
-	conn := database.Connect(os.Getenv("DBURL"))
+	// Remove session middleware - we'll handle sessions manually
+	conn := database.Connect(cfg.DBURL)
+	mailer := services.New(cfg)
 
+	// Repositories
 	userRepo := repository.NewUserRepository(conn)
-	userHand := handlers.NewUserHandler(userRepo)
+	otpRepo := repository.NewOtpRepository(conn)
+	sessionRepo := repository.NewSessionRepository(conn)
 
-	authHand := handlers.NewAuthHandler(userRepo, m)
+	userHand := handlers.NewUserHandler(userRepo)
+	authHand := handlers.NewAuthHandler(userRepo, otpRepo, sessionRepo, mailer, cfg)
+
 	app := fiber.New(fiber.Config{
 		AppName: "NTMonitor v1.0",
 	})
 
-	router.SetupRoutes(app, userHand, authHand)
+	// Routes (no session middleware)
+	router.SetupRoutes(app, userHand, authHand, sessionRepo)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8000"
-	}
-
-	log.Printf("NTMonitor is running on port %s", port)
-	log.Fatal(app.Listen(":" + port))
+	log.Printf("NTMonitor is running on port %s", cfg.PORT)
+	log.Fatal(app.Listen(":" + cfg.PORT))
 }

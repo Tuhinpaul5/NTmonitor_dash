@@ -9,7 +9,7 @@ type RegisterRequest struct {
 	Phone    string `json:"phone" validate:"required" default:"+1234567890"`
 	Country  string `json:"country" validate:"required" default:"India"`
 	Address  string `json:"address" validate:"required" default:"123 Main Street, City, Country"`
-	Otp      int    `json:"otp" validate:"required,len=6" default:"123456"`
+	Token    string `json:"token" validate:"required" default:"test_token"` // OTP token for registration
 }
 
 type LoginRequest struct {
@@ -23,5 +23,23 @@ type OTPRequest struct {
 
 type VerifyOTPRequest struct {
 	Email string `json:"email" validate:"required,email" default:"user@example.com"`
-	OTP   string `json:"otp" validate:"required,len=6" default:"123456"`
+	Otp   uint   `json:"otp" validate:"required,min=100000,max=999999" default:"123456"`
+}
+
+type UpdateUserRequest struct {
+	ID       string `json:"id" validate:"required,uuid4" default:"123e4567-e89b-12d3-a456-426614174000"`
+	Username string `json:"username" default:"user123"`
+	Bio      string `json:"bio" default:"Updated user bio description"`
+	Phone    string `json:"phone" default:"+1234567890"`
+	Country  string `json:"country" default:"India"`
+	Address  string `json:"address" default:"123 Main Street, City, Country"`
+}
+
+type DeleteUserRequest struct {
+	ID string `json:"id" validate:"required,uuid4" default:"123e4567-e89b-12d3-a456-426614174000"`
+}
+
+type ListUsersRequest struct {
+	Page     int `json:"page" validate:"min=1" default:"1"`
+	PageSize int `json:"page_size" validate:"min=1,max=100" default:"10"`
 }

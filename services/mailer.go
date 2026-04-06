@@ -1,9 +1,9 @@
-package mailer
+package services
 
 import (
+	"NTMonitor/config"
 	"crypto/tls"
 	"fmt"
-	"os"
 	"strconv"
 
 	"gopkg.in/gomail.v2"
@@ -14,19 +14,19 @@ type Mailer struct {
 	dialer *gomail.Dialer
 }
 
-func New() *Mailer {
-	port, _ := strconv.Atoi(os.Getenv("SMTP_PORT"))
+func New(cfg *config.Config) *Mailer {
+	port, _ := strconv.Atoi(cfg.SMTP_PORT)
 
 	d := gomail.NewDialer(
-		os.Getenv("SMTP_HOST"),
+		cfg.SMTP_HOST,
 		port,
-		os.Getenv("SMTP_USERNAME"),
-		os.Getenv("SMTP_PASSWORD"),
+		cfg.SMTP_USERNAME,
+		cfg.SMTP_PASSWORD,
 	)
-	d.TLSConfig = &tls.Config{ServerName: os.Getenv("SMTP_HOST")}
+	d.TLSConfig = &tls.Config{ServerName: cfg.SMTP_HOST}
 
 	return &Mailer{
-		from:   os.Getenv("SMTP_FROM"),
+		from:   cfg.SMTP_FROM,
 		dialer: d,
 	}
 }

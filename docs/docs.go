@@ -75,6 +75,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/auth/logout": {
+            "post": {
+                "description": "Log out the authenticated user by destroying the session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/register": {
             "post": {
                 "description": "Register a new user with email and profile data",
@@ -310,9 +342,12 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users/id/{id}": {
+        "/api/users/{id}": {
             "get": {
-                "description": "Retrieve a single user by their ID",
+                "description": "Retrieve a user by their unique ID",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -336,8 +371,26 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -386,9 +439,9 @@ const docTemplate = `{
                 "address",
                 "country",
                 "email",
-                "otp",
                 "password",
                 "phone",
+                "token",
                 "username"
             ],
             "properties": {
@@ -408,10 +461,6 @@ const docTemplate = `{
                     "type": "string",
                     "default": "user@example.com"
                 },
-                "otp": {
-                    "type": "integer",
-                    "default": 123456
-                },
                 "password": {
                     "type": "string",
                     "default": "password123",
@@ -420,6 +469,11 @@ const docTemplate = `{
                 "phone": {
                     "type": "string",
                     "default": "+1234567890"
+                },
+                "token": {
+                    "description": "OTP token for registration",
+                    "type": "string",
+                    "default": "test_token"
                 },
                 "username": {
                     "type": "string",
@@ -439,8 +493,10 @@ const docTemplate = `{
                     "default": "user@example.com"
                 },
                 "otp": {
-                    "type": "string",
-                    "default": "123456"
+                    "type": "integer",
+                    "default": 123456,
+                    "maximum": 999999,
+                    "minimum": 100000
                 }
             }
         },
@@ -454,7 +510,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "is_verified": {
                     "description": "Email verification status",
@@ -508,7 +564,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "ip": {
                     "type": "string"
@@ -520,7 +576,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },

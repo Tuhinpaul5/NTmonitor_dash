@@ -2,12 +2,18 @@ package models
 
 import "time"
 
+type OtpType string
+
+const (
+	OtpTypeRegister OtpType = "register"
+	OtpTypeLogin    OtpType = "login"
+)
+
 type OTP struct {
-	ID        uint      `gorm:"primaryKey" json:"id"`
-	UserID    uint      `gorm:"index;not null" json:"user_id"`
-	User      User      `gorm:"foreignKey:UserID; constraint:OnUpdate:CASCADE, OnDelete:CASCADE" json:"-"`
-	Otp       string    `gorm:"not null;uniqueIndex" json:"otp"`
-	Type      string    `gorm:"not null" json:"type"` // e.g., "email_verification", "password_reset"
+	ID        string    `gorm:"primaryKey;type:char(32);default:substr(gen_random_uuid()::text, 1, 32)" json:"id"`
+	Email     string    `gorm:"not null" json:"email"`
+	Otp       uint      `gorm:"not null;uniqueIndex" json:"otp"`
+	Type      OtpType   `gorm:"type:otp_type_enum;not null;default:'register'" json:"type"`
 	Used      bool      `gorm:"not null" json:"used"`
 	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`

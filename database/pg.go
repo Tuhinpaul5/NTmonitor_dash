@@ -22,6 +22,7 @@ func Connect(dsn string) *gorm.DB {
 		&models.User{},
 		&models.UserData{},
 		&models.OTP{},
+		&models.UserSession{},
 	)
 
 	return db
@@ -40,5 +41,12 @@ func createEnumTypes(db *gorm.DB) {
 	db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type_enum')").Scan(&typeExists)
 	if !typeExists {
 		db.Exec("CREATE TYPE user_type_enum AS ENUM ('admin', 'moderator', 'user', 'guest')")
+	}
+
+	// Check and create otp_type_enum
+	var otpTypeExists bool
+	db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'otp_type_enum')").Scan(&otpTypeExists)
+	if !otpTypeExists {
+		db.Exec("CREATE TYPE otp_type_enum AS ENUM ('register', 'password_reset')")
 	}
 }
