@@ -22,7 +22,7 @@ func SetupRoutes(
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:8000", "http://127.0.0.1:8000"}, // Allow your frontend origin
-		AllowHeaders:     []string{"*"}, // Allow all headers
+		AllowHeaders:     []string{"*"},                                              // Allow all headers
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"*"}, // Expose all headers
