@@ -109,7 +109,12 @@ const docTemplate = `{
         },
         "/api/auth/register": {
             "post": {
-                "description": "Register a new user with email and profile data",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Register a new user with email and profile data. Requires JWT token from OTP verification.",
                 "consumes": [
                     "application/json"
                 ],
@@ -140,6 +145,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -441,7 +455,6 @@ const docTemplate = `{
                 "email",
                 "password",
                 "phone",
-                "token",
                 "username"
             ],
             "properties": {
@@ -469,11 +482,6 @@ const docTemplate = `{
                 "phone": {
                     "type": "string",
                     "default": "+1234567890"
-                },
-                "token": {
-                    "description": "OTP token for registration",
-                    "type": "string",
-                    "default": "test_token"
                 },
                 "username": {
                     "type": "string",
@@ -609,6 +617,14 @@ const docTemplate = `{
                 "UserTypeUser",
                 "UserTypeGuest"
             ]
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

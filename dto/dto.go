@@ -9,7 +9,6 @@ type RegisterRequest struct {
 	Phone    string `json:"phone" validate:"required" default:"+1234567890"`
 	Country  string `json:"country" validate:"required" default:"India"`
 	Address  string `json:"address" validate:"required" default:"123 Main Street, City, Country"`
-	Token    string `json:"token" validate:"required" default:"test_token"` // OTP token for registration
 }
 
 type LoginRequest struct {

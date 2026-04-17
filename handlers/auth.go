@@ -58,14 +58,16 @@ func (h *AuthHandler) CheckPasswordHash(password, hash string) bool {
 // Register godoc
 //
 //	@Summary		Register a new user
-//	@Description	Register a new user with email and profile data
+//	@Description	Register a new user with email and profile data. Requires JWT token from OTP verification.
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		dto.RegisterRequest	true	"Registration Data"
 //	@Success		201		{object}	models.User
 //	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
 //	@Failure		500		{object}	map[string]string
+//	@Security		BearerAuth
 //	@Router			/api/auth/register [post]
 func (h *AuthHandler) Register(c fiber.Ctx) error {
 	req, err := utils.ParseAndValidate[dto.RegisterRequest](c)
@@ -90,9 +92,10 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 	if h.Cfg.APP_ENV == "local" {
 		verifiedEmail = req.Email // In local, trust the body
 	} else {
-		// Normal Production Logic
-		userToken, ok := c.Context().Value("user").(*jwt.Token)
-		if !ok || userToken == nil {
+		userToken, ok := c.Locals("user").(*jwt.Token)
+		log.Printf("User Token: %v, Ok: %v", userToken, ok)
+
+		if !ok || userToken == nil || !userToken.Valid {
 			success := false
 			return utils.ResponseHandler(c, utils.ResponseOptions{
 				Status:  fiber.StatusUnauthorized,
@@ -101,11 +104,28 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 			})
 		}
 
-		claims := userToken.Claims.(jwt.MapClaims)
-		verifiedEmail = claims["email"].(string)
-		purpose := claims["purpose"].(string)
+		claims, ok := userToken.Claims.(jwt.MapClaims)
+		if !ok {
+			success := false
+			return utils.ResponseHandler(c, utils.ResponseOptions{
+				Status:  fiber.StatusUnauthorized,
+				Success: &success,
+				Error:   "Invalid token claims",
+			})
+		}
 
-		if purpose != "registration_bridge" {
+		verifiedEmail, ok = claims["email"].(string)
+		if !ok || verifiedEmail == "" {
+			success := false
+			return utils.ResponseHandler(c, utils.ResponseOptions{
+				Status:  fiber.StatusUnauthorized,
+				Success: &success,
+				Error:   "Invalid email in token",
+			})
+		}
+
+		purpose, ok := claims["purpose"].(string)
+		if !ok || purpose != "registration_bridge" {
 			success := false
 			return utils.ResponseHandler(c, utils.ResponseOptions{
 				Status:  fiber.StatusForbidden,
@@ -113,15 +133,34 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 				Error:   "Token purpose mismatch",
 			})
 		}
-	}
 
-	if verifiedEmail != req.Email {
-		success := false
-		return utils.ResponseHandler(c, utils.ResponseOptions{
-			Status:  fiber.StatusUnauthorized,
-			Success: &success,
-			Error:   "Email verification failed",
-		})
+		// Optional but good: expiry check
+		if exp, ok := claims["exp"].(float64); ok {
+			if int64(exp) < time.Now().Unix() {
+				success := false
+				return utils.ResponseHandler(c, utils.ResponseOptions{
+					Status:  fiber.StatusUnauthorized,
+					Success: &success,
+					Error:   "Token expired",
+				})
+			}
+		} else {
+			success := false
+			return utils.ResponseHandler(c, utils.ResponseOptions{
+				Status:  fiber.StatusUnauthorized,
+				Success: &success,
+				Error:   "Invalid token expiry",
+			})
+		}
+
+		if verifiedEmail != req.Email {
+			success := false
+			return utils.ResponseHandler(c, utils.ResponseOptions{
+				Status:  fiber.StatusUnauthorized,
+				Success: &success,
+				Error:   "Email verification failed",
+			})
+		}
 	}
 
 	email := req.Email
@@ -258,7 +297,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 	cookieDomain = h.Cfg.APP_DOMAIN // Use configured domain in production
 
 	c.Cookie(&fiber.Cookie{
-		Name:     "session_tokena",
+		Name:     "session_token",
 		Value:    sessionToken,
 		Expires:  userSession.ExpiresAt,
 		HTTPOnly: true,

@@ -24,8 +24,13 @@ import (
 //	@license.name	MIT
 //	@license.url	https://opensource.org/licenses/MIT
 
-// @host		localhost:8000
-// @BasePath	/
+//	@host		localhost:8000
+//	@BasePath	/
+
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
+// @description				Type "Bearer" followed by a space and JWT token.
 func main() {
 	cfg := config.LoadConfig()
 
@@ -46,7 +51,7 @@ func main() {
 	})
 
 	// Routes (no session middleware)
-	router.SetupRoutes(app, userHand, authHand, sessionRepo)
+	router.SetupRoutes(app, userHand, authHand, sessionRepo, cfg)
 
 	log.Printf("NTMonitor is running on port %s", cfg.PORT)
 	log.Fatal(app.Listen(":" + cfg.PORT))

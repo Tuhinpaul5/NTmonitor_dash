@@ -42,10 +42,6 @@ definitions:
       phone:
         default: "+1234567890"
         type: string
-      token:
-        default: test_token
-        description: OTP token for registration
-        type: string
       username:
         default: user123
         type: string
@@ -55,7 +51,6 @@ definitions:
     - email
     - password
     - phone
-    - token
     - username
     type: object
   dto.VerifyOTPRequest:
@@ -217,7 +212,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Register a new user with email and profile data
+      description: Register a new user with email and profile data. Requires JWT token
+        from OTP verification.
       parameters:
       - description: Registration Data
         in: body
@@ -238,12 +234,20 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Register a new user
       tags:
       - auth
@@ -406,4 +410,10 @@ paths:
       summary: Get user by ID
       tags:
       - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
