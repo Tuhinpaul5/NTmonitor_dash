@@ -276,14 +276,19 @@ const docTemplate = `{
         },
         "/api/users": {
             "get": {
-                "description": "Retrieve a list of all users",
+                "security": [
+                    {
+                        "SessionAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of all users. Requires admin role.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "users"
                 ],
-                "summary": "Get all users",
+                "summary": "Get all users (Admin only)",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -291,6 +296,15 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
@@ -358,7 +372,12 @@ const docTemplate = `{
         },
         "/api/users/{id}": {
             "get": {
-                "description": "Retrieve a user by their unique ID",
+                "security": [
+                    {
+                        "SessionAuth": []
+                    }
+                ],
+                "description": "Retrieve a user by their unique ID. Users can only view their own profile unless they are admin.",
                 "consumes": [
                     "application/json"
                 ],
@@ -387,6 +406,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -625,6 +653,12 @@ const docTemplate = `{
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
+        },
+        "SessionAuth": {
+            "description": "Session token for authenticated requests.",
+            "type": "apiKey",
+            "name": "session_token",
+            "in": "cookie"
         }
     }
 }`

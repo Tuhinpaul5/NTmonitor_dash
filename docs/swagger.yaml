@@ -319,7 +319,7 @@ paths:
       - auth
   /api/users:
     get:
-      description: Retrieve a list of all users
+      description: Retrieve a list of all users. Requires admin role.
       produces:
       - application/json
       responses:
@@ -329,13 +329,21 @@ paths:
             items:
               $ref: '#/definitions/models.User'
             type: array
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Internal Server Error
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Get all users
+      security:
+      - SessionAuth: []
+      summary: Get all users (Admin only)
       tags:
       - users
     post:
@@ -375,7 +383,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a user by their unique ID
+      description: Retrieve a user by their unique ID. Users can only view their own
+        profile unless they are admin.
       parameters:
       - description: User ID
         in: path
@@ -395,6 +404,12 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: Not Found
           schema:
@@ -407,6 +422,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - SessionAuth: []
       summary: Get user by ID
       tags:
       - users
@@ -415,5 +432,10 @@ securityDefinitions:
     description: Type "Bearer" followed by a space and JWT token.
     in: header
     name: Authorization
+    type: apiKey
+  SessionAuth:
+    description: Session token for authenticated requests.
+    in: cookie
+    name: session_token
     type: apiKey
 swagger: "2.0"

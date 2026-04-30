@@ -18,6 +18,7 @@ func SetupRoutes(
 	userHand *handlers.UserHandler,
 	authHand *handlers.AuthHandler,
 	sessionRepo *repository.SessionRepository,
+	userRepo *repository.UserRepository,
 	cfg *config.Config,
 ) {
 
@@ -125,8 +126,8 @@ func SetupRoutes(
 
 	// Public routes (no authentication required)
 	RegisterAuthRoutes(api, authHand, jwtMiddleware)
-	RegisterUserRoutes(api, userHand) // Public user routes if any
+	// RegisterUserRoutes(api, userHand) // Public user routes if any
 
 	// Protected routes (require session authentication)
-	RegisterProtectedUserRoutes(api, userHand, sessionAuthMiddleware)
+	RegisterProtectedUserRoutes(api, userHand, sessionAuthMiddleware, userRepo)
 }

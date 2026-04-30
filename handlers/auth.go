@@ -266,7 +266,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 
 	// Generate new session token
 	sessionToken, err := utils.GenerateSecureToken(128)
-	log.Println("TOKEN :: %v", sessionToken)
+	// log.Println("TOKEN :: %v", sessionToken)
 	if err != nil {
 		successFlag := false
 		return utils.ResponseHandler(c, utils.ResponseOptions{
