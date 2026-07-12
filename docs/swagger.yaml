@@ -67,6 +67,37 @@ definitions:
     - email
     - otp
     type: object
+  handlers.CommandRequest:
+    properties:
+      command:
+        type: string
+      parameters:
+        additionalProperties: true
+        type: object
+      timeout:
+        description: in seconds
+        type: integer
+    required:
+    - command
+    type: object
+  handlers.CommandResponse:
+    properties:
+      command:
+        type: string
+      command_id:
+        type: string
+      device_id:
+        type: string
+      error:
+        type: string
+      queued_at:
+        type: string
+      sent_at:
+        type: string
+      status:
+        description: '"queued", "sent", "delivered", "failed"'
+        type: string
+    type: object
   models.User:
     properties:
       created_at:
@@ -317,6 +348,178 @@ paths:
       summary: Verify OTP
       tags:
       - auth
+  /api/commands/{command_id}:
+    get:
+      description: Get the status of a previously sent command
+      parameters:
+      - description: Command ID
+        in: path
+        name: command_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CommandResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get command status
+      tags:
+      - Commands
+  /api/commands/{command_id}/retry:
+    post:
+      description: Retry a failed or queued command
+      parameters:
+      - description: Command ID
+        in: path
+        name: command_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CommandResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retry command
+      tags:
+      - Commands
+  /api/devices/{device_id}/command:
+    post:
+      consumes:
+      - application/json
+      description: Queue and send a command to a specific device
+      parameters:
+      - description: Device ID
+        in: path
+        name: device_id
+        required: true
+        type: string
+      - description: Command details
+        in: body
+        name: command
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CommandResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send command to device
+      tags:
+      - Commands
+  /api/devices/{device_id}/commands:
+    get:
+      description: Get all commands (queued, sent, failed) for a specific device
+      parameters:
+      - description: Device ID
+        in: path
+        name: device_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handlers.CommandResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get device commands
+      tags:
+      - Commands
+  /api/gateway/devices/{device_id}/disconnect:
+    post:
+      description: Forcefully disconnect a device from the gateway
+      parameters:
+      - description: Device ID
+        in: path
+        name: device_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Disconnect a device
+      tags:
+      - Gateway
+  /api/gateway/stats:
+    get:
+      description: Get statistics about active WebSocket connections
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get connection statistics
+      tags:
+      - Gateway
   /api/users:
     get:
       description: Retrieve a list of all users. Requires admin role.

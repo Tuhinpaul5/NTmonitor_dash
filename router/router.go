@@ -20,6 +20,8 @@ func SetupRoutes(
 	sessionRepo *repository.SessionRepository,
 	userRepo *repository.UserRepository,
 	cfg *config.Config,
+	gatewayHandler *handlers.GatewayWSHandler,
+	commandHandler *handlers.CommandHandler,
 ) {
 
 	app.Use(cors.New(cors.Config{
@@ -134,4 +136,8 @@ func SetupRoutes(
 
 	// Protected routes (require session authentication)
 	RegisterProtectedUserRoutes(api, userHand, sessionAuthMiddleware, userRepo)
+
+	// Gateway WebSocket and Command routes
+	RegisterGatewayRoutes(api, gatewayHandler, commandHandler, jwtMiddleware)
+	RegisterCommandRoutes(api, commandHandler, sessionAuthMiddleware)
 }

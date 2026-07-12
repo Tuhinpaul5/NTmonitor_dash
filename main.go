@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"NTMonitor/config"
 	"NTMonitor/database"
@@ -51,12 +52,21 @@ func main() {
 	userHand := handlers.NewUserHandler(userRepo)
 	authHand := handlers.NewAuthHandler(userRepo, otpRepo, sessionRepo, mailer, cfg)
 
+	// Initialize WebSocket Gateway and Command handlers
+	registry := handlers.NewConnectionRegistry()
+	gatewayHandler := handlers.NewGatewayWSHandler(registry)
+	commandHandler := handlers.NewCommandHandler(registry)
+
+	// Start connection health monitor
+	// Ping every 30s, cleanup every 60s, max 3 missed pings
+	gatewayHandler.StartHealthMonitor(30*time.Second, 60*time.Second, 3)
+
 	app := fiber.New(fiber.Config{
 		AppName: "NTMonitor v1.0",
 	})
 
 	// Routes (no session middleware)
-	router.SetupRoutes(app, userHand, authHand, sessionRepo, userRepo, cfg)
+	router.SetupRoutes(app, userHand, authHand, sessionRepo, userRepo, cfg, gatewayHandler, commandHandler)
 
 	log.Printf("NTMonitor is running on port %s", cfg.PORT)
 	log.Fatal(app.Listen(":" + cfg.PORT))
