@@ -31,10 +31,15 @@ import (
 // @in							header
 // @name						Authorization
 // @description				Type "Bearer" followed by a space and JWT token.
+
+// @securityDefinitions.apikey	SessionAuth
+// @in							cookie
+// @name						session_token
+// @description				Session token for authenticated requests.
+
 func main() {
 	cfg := config.LoadConfig()
 
-	// Remove session middleware - we'll handle sessions manually
 	conn := database.Connect(cfg.DBURL)
 	mailer := services.New(cfg)
 
@@ -51,7 +56,7 @@ func main() {
 	})
 
 	// Routes (no session middleware)
-	router.SetupRoutes(app, userHand, authHand, sessionRepo, cfg)
+	router.SetupRoutes(app, userHand, authHand, sessionRepo, userRepo, cfg)
 
 	log.Printf("NTMonitor is running on port %s", cfg.PORT)
 	log.Fatal(app.Listen(":" + cfg.PORT))

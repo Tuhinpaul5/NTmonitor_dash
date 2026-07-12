@@ -14,7 +14,7 @@ func AuthMiddleware(sessionRepo *repository.SessionRepository) fiber.Handler {
 		sessionToken := c.Cookies("session_token")
 		if sessionToken == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "No session token provided",
+				"error": "Unauthorized",
 			})
 		}
 

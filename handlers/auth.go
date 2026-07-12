@@ -266,7 +266,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 
 	// Generate new session token
 	sessionToken, err := utils.GenerateSecureToken(128)
-	log.Println("TOKEN :: %v", sessionToken)
+	// log.Println("TOKEN :: %v", sessionToken)
 	if err != nil {
 		successFlag := false
 		return utils.ResponseHandler(c, utils.ResponseOptions{
@@ -389,7 +389,7 @@ func (h *AuthHandler) SendOTP(c fiber.Ctx) error {
 
 	// Placeholder for sending OTP logic (e.g., using an email service)
 	log.Printf("Sending OTP %d to email %s\n", otp, email)
-
+	
 	otps := models.OTP{
 		Email:     email,
 		Otp:       uint(otp),
