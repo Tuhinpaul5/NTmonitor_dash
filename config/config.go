@@ -26,11 +26,17 @@ func LoadConfig() *Config {
 		log.Println("Warning: .env file not found, using system env")
 	}
 
+	// Set default PORT if not provided
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+
 	return &Config{
 		APP_ENV:       os.Getenv("APP_ENV"),
 		APP_DOMAIN:    os.Getenv("APP_DOMAIN"),
 		DBURL:         os.Getenv("DBURL"),
-		PORT:          os.Getenv("PORT"),
+		PORT:          port,
 		JWT_SECRET:    os.Getenv("JWT_SECRET"),
 		SMTP_HOST:     os.Getenv("SMTP_HOST"),
 		SMTP_PORT:     os.Getenv("SMTP_PORT"),
