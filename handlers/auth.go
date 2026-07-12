@@ -389,7 +389,7 @@ func (h *AuthHandler) SendOTP(c fiber.Ctx) error {
 
 	// Placeholder for sending OTP logic (e.g., using an email service)
 	log.Printf("Sending OTP %d to email %s\n", otp, email)
-
+	
 	otps := models.OTP{
 		Email:     email,
 		Otp:       uint(otp),

@@ -17,18 +17,41 @@ func NewUserHandler(repo *repository.UserRepository) *UserHandler {
 	return &UserHandler{Repo: repo}
 }
 
-// CreateUser godoc
+// GetMe godoc
 //
-//	@Summary		Create a new user
-//	@Description	Create a new user with email and profile data
+//	@Summary		Get Me
+//	@Description	Retrieve the profile of the currently authenticated user.
 //	@Tags			users
-//	@Accept			json
 //	@Produce		json
-//	@Param			user	body		models.User	true	"User object"
-//	@Success		201		{object}	models.User
-//	@Failure		400		{object}	map[string]string
-//	@Failure		500		{object}	map[string]string
-//	@Router			/api/users [post]
+//	@Success		200	{object}	models.User
+//	@Failure		401	{object}	map[string]string
+//	@Failure		404	{object}	map[string]string
+//	@Security		SessionAuth
+//	@Router			/api/users/get-me [get]
+func (h *UserHandler) GetMe(c fiber.Ctx) error {
+	// Get authenticated user ID from context
+	authUserID, ok := c.Locals("user_id").(string)
+	if !ok || authUserID == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Authentication required",
+		})
+	}
+
+	// Fetch the authenticated user's profile
+	var user models.User
+	if err := h.Repo.DB.Preload("Profile").First(&user, "id = ?", authUserID).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "User not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "User profile retrieved successfully",
+		"data":    user,
+	})
+}
+
+
 func (h *UserHandler) CreateUser(c fiber.Ctx) error {
 	user := new(models.User)
 	if err := c.Bind().Body(user); err != nil {

@@ -22,6 +22,7 @@ func RegisterProtectedUserRoutes(app fiber.Router, h *handlers.UserHandler, auth
 	users := app.Group("/users")
 	users.Use(authMiddleware) // Apply auth middleware to all user routes
 
+	users.Get("/get-me", h.GetMe) // Get current user info
 	// Admin only - Get all users
 	users.Get("/", middleware.RequireRole(userRepo, models.UserTypeAdmin), h.GetUsers)
 

@@ -32,6 +32,10 @@ func SetupRoutes(
 
 	app.Use(logger.New())
 
+	app.Get("/", func(c fiber.Ctx) error {
+		return c.SendString("Howdy!! 🤠")
+	})
+
 	// 1. Serve the generated Swagger JSON from the /docs folder
 	// This makes http://localhost:8000/swagger/swagger.json accessible
 	app.Get("/swagger/swagger.json", func(c fiber.Ctx) error {

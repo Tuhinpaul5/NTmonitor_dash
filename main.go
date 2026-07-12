@@ -40,7 +40,6 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	// Remove session middleware - we'll handle sessions manually
 	conn := database.Connect(cfg.DBURL)
 	mailer := services.New(cfg)
 
