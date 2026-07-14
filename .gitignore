@@ -5,6 +5,33 @@
 *.so
 *.dylib
 tmp
+go.mod
+go.sum
+
+# Air build artifacts
+tmp/
+build-errors.log
+
+# Go build output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go test binaries
+*.test
+
+# Go coverage
+*.out
+
+# Env files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
 
 # Test binary, built with `go test -c`
 *.test
