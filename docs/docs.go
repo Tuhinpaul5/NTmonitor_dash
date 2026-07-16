@@ -414,6 +414,126 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/node/nodes": {
+            "get": {
+                "description": "Retrieves a list of all nodes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node"
+                ],
+                "summary": "Get all nodes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Node"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve Nodes",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new node with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node"
+                ],
+                "summary": "Add a new node",
+                "parameters": [
+                    {
+                        "description": "Node object to create",
+                        "name": "node",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Node"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Node"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not create Node",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/node/nodes/{id}": {
+            "get": {
+                "description": "Retrieves a single node by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node"
+                ],
+                "summary": "Get a node by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Node"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve Node",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -507,6 +627,42 @@ const docTemplate = `{
                     "minimum": 100000
                 }
             }
+        },
+        "models.Node": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "otp": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.NodeStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NodeStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "idle"
+            ],
+            "x-enum-varnames": [
+                "NodeStatusActive",
+                "NodeStatusInactive",
+                "NodeStatusIdle"
+            ]
         },
         "models.User": {
             "type": "object",

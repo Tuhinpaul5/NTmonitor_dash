@@ -42,6 +42,7 @@ func main() {
 	userRepo := repository.NewUserRepository(conn)
 	otpRepo := repository.NewOtpRepository(conn)
 	sessionRepo := repository.NewSessionRepository(conn)
+	nodeRepo := repository.NewNodeRepository(conn)
 
 	userHand := handlers.NewUserHandler(userRepo)
 	authHand := handlers.NewAuthHandler(userRepo, otpRepo, sessionRepo, mailer, cfg)
@@ -51,7 +52,7 @@ func main() {
 	})
 
 	// Routes (no session middleware)
-	router.SetupRoutes(app, userHand, authHand, sessionRepo, cfg)
+	router.SetupRoutes(app, userHand, authHand, sessionRepo, nodeRepo, cfg)
 
 	log.Printf("NTMonitor is running on port %s", cfg.PORT)
 	log.Fatal(app.Listen(":" + cfg.PORT))

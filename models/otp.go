@@ -5,8 +5,9 @@ import "time"
 type OtpType string
 
 const (
-	OtpTypeRegister OtpType = "register"
-	OtpTypeLogin    OtpType = "login"
+	OtpTypeRegister 		OtpType = "register"
+	OtpTypeLogin    		OtpType = "login"
+	OtpTypePasswordReset    OtpType = "password"
 )
 
 type OTP struct {

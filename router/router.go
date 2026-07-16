@@ -18,6 +18,7 @@ func SetupRoutes(
 	userHand *handlers.UserHandler,
 	authHand *handlers.AuthHandler,
 	sessionRepo *repository.SessionRepository,
+	nodeRepo *repository.NodeRepository,
 	cfg *config.Config,
 ) {
 

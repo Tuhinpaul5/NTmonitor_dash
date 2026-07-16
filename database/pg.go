@@ -1,11 +1,13 @@
 package database
 
 import (
-	"NTMonitor/models"
-	"log"
-
 	"gorm.io/driver/postgres"
+	"NTMonitor/models"
 	"gorm.io/gorm"
+
+	"log"
+	"fmt"
+	"strings"
 )
 
 func Connect(dsn string) *gorm.DB {
@@ -28,25 +30,42 @@ func Connect(dsn string) *gorm.DB {
 	return db
 }
 
+type EnumDef struct {
+	Name   string
+	Values []string
+}
+
 func createEnumTypes(db *gorm.DB) {
-	// Check and create user_status_enum
-	var statusExists bool
-	db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_status_enum')").Scan(&statusExists)
-	if !statusExists {
-		db.Exec("CREATE TYPE user_status_enum AS ENUM ('active', 'inactive', 'suspended', 'pending')")
+	enums := []EnumDef{
+		{"user_status_enum", enumValues(models.UserStatusActive, models.UserStatusInactive, models.UserStatusSuspended, models.UserStatusPending)},
+		{"user_type_enum", enumValues(models.UserTypeAdmin, models.UserTypeModerator, models.UserTypeUser, models.UserTypeGuest)},
+		{"otp_type_enum", enumValues(models.OtpTypeRegister, models.OtpTypePasswordReset)},
+		{"node_status_enum", enumValues(models.NodeStatusActive, models.NodeStatusInactive, models.NodeStatusIdle)},
 	}
 
-	// Check and create user_type_enum
-	var typeExists bool
-	db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type_enum')").Scan(&typeExists)
-	if !typeExists {
-		db.Exec("CREATE TYPE user_type_enum AS ENUM ('admin', 'moderator', 'user', 'guest')")
+	for _, e := range enums {
+		var exists bool
+		db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = ?)", e.Name).Scan(&exists)
+		if exists {
+			continue
+		}
+		quoted := make([]string, len(e.Values))
+		for i, v := range e.Values {
+			quoted[i] = "'" + v + "'"
+		}
+		query := fmt.Sprintf("CREATE TYPE %s AS ENUM (%s)", e.Name, strings.Join(quoted, ", "))
+		if err := db.Exec(query).Error; err != nil {
+			log.Printf("failed to create enum %s: %v", e.Name, err)
+		}
 	}
+}
 
-	// Check and create otp_type_enum
-	var otpTypeExists bool
-	db.Raw("SELECT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'otp_type_enum')").Scan(&otpTypeExists)
-	if !otpTypeExists {
-		db.Exec("CREATE TYPE otp_type_enum AS ENUM ('register', 'password_reset')")
+// enumValues converts any stringer-ish typed constants (NodeStatus, UserStatus, etc.)
+// into a []string for building the ENUM DDL.
+func enumValues[T ~string](vals ...T) []string {
+	out := make([]string, len(vals))
+	for i, v := range vals {
+		out[i] = string(v)
 	}
+	return out
 }
