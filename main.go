@@ -46,13 +46,14 @@ func main() {
 
 	userHand := handlers.NewUserHandler(userRepo)
 	authHand := handlers.NewAuthHandler(userRepo, otpRepo, sessionRepo, mailer, cfg)
+	nodeHand := handlers.NewNodeHandler(nodeRepo)
 
 	app := fiber.New(fiber.Config{
 		AppName: "NTMonitor v1.0",
 	})
 
 	// Routes (no session middleware)
-	router.SetupRoutes(app, userHand, authHand, sessionRepo, nodeRepo, cfg)
+	router.SetupRoutes(app, userHand, authHand, nodeHand, sessionRepo, nodeRepo, cfg)
 
 	log.Printf("NTMonitor is running on port %s", cfg.PORT)
 	log.Fatal(app.Listen(":" + cfg.PORT))
