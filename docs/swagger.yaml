@@ -342,6 +342,85 @@ paths:
       summary: Verify OTP
       tags:
       - auth
+  /api/node/nodes:
+    get:
+      description: Retrieves a list of all nodes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Node'
+            type: array
+        "500":
+          description: Could not retrieve Nodes
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all nodes
+      tags:
+      - node
+    post:
+      consumes:
+      - application/json
+      description: Creates a new node with the provided details
+      parameters:
+      - description: Node object to create
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/models.Node'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Node'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Could not create Node
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new node
+      tags:
+      - node
+  /api/node/nodes/{id}:
+    get:
+      description: Retrieves a single node by its ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Node'
+        "500":
+          description: Could not retrieve Node
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a node by ID
+      tags:
+      - node
   /api/users:
     get:
       description: Retrieve a list of all users
@@ -435,85 +514,6 @@ paths:
       summary: Get user by ID
       tags:
       - users
-  /node/nodes:
-    get:
-      description: Retrieves a list of all nodes
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Node'
-            type: array
-        "500":
-          description: Could not retrieve Nodes
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get all nodes
-      tags:
-      - node
-    post:
-      consumes:
-      - application/json
-      description: Creates a new node with the provided details
-      parameters:
-      - description: Node object to create
-        in: body
-        name: node
-        required: true
-        schema:
-          $ref: '#/definitions/models.Node'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.Node'
-        "400":
-          description: Invalid request body
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Could not create Node
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Add a new node
-      tags:
-      - node
-  /node/nodes/{id}:
-    get:
-      description: Retrieves a single node by its ID
-      parameters:
-      - description: Node ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Node'
-        "500":
-          description: Could not retrieve Node
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get a node by ID
-      tags:
-      - node
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.

@@ -12,6 +12,14 @@ type NodeHandler struct {
 	NodeRepo *repository.NodeRepository
 }
 
+func NewNodeHandler(
+	nodeRepo *repository.NodeRepository,
+) *NodeHandler {
+	return &NodeHandler{
+		Repo: nodeRepo,
+	}
+}
+
 // AddNode godoc
 //
 //	@Summary		Add a new node
@@ -23,7 +31,7 @@ type NodeHandler struct {
 //	@Success		201		{object}	models.Node
 //	@Failure		400		{object}	map[string]string	"Invalid request body"
 //	@Failure		500		{object}	map[string]string	"Could not create Node"
-//	@Router			/node/nodes [post]
+//	@Router			/api/node/nodes [post]
 func (h *NodeHandler) AddNode(c fiber.Ctx) error {
 	node := new(models.Node)
 	if err := c.Bind().Body(node); err != nil {
@@ -49,10 +57,12 @@ func (h *NodeHandler) AddNode(c fiber.Ctx) error {
 //	@Produce		json
 //	@Success		200	{array}		models.Node
 //	@Failure		500	{object}	map[string]string	"Could not retrieve Nodes"
-//	@Router			/node/nodes [get]
+//	@Router			/api/node/nodes [get]
 func (h *NodeHandler) GetAllNodes(c fiber.Ctx) error {
+	log.Printf("here")
 	nodes, err := h.Repo.FindAll()
-	log.Println(nodes)
+	log.Printf("NODES: %v, Error: %v", nodes, err)
+
 	if err != nil {
 		c.Response().SetStatusCode(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{"error": "Could not retrieve Nodes"})
@@ -72,10 +82,11 @@ func (h *NodeHandler) GetAllNodes(c fiber.Ctx) error {
 //	@Param			id	path		string	true	"Node ID"
 //	@Success		200	{object}	models.Node
 //	@Failure		500	{object}	map[string]string	"Could not retrieve Node"
-//	@Router			/node/nodes/{id} [get]
+//	@Router			/api/node/nodes/{id} [get]
 func (h *NodeHandler) GetNodeByID(c fiber.Ctx) error {
 	id := c.Params("id")
 	node, err := h.Repo.FindByID(id)
+	log.Printf("NODE: %v, Error: %v", node, err)
 	if err != nil {
 		c.Response().SetStatusCode(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{"error": "Could not retrieve Node"})

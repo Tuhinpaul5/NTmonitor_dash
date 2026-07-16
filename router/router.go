@@ -17,6 +17,7 @@ func SetupRoutes(
 	app *fiber.App,
 	userHand *handlers.UserHandler,
 	authHand *handlers.AuthHandler,
+	nodeHand *handlers.NodeHandler,
 	sessionRepo *repository.SessionRepository,
 	nodeRepo *repository.NodeRepository,
 	cfg *config.Config,
@@ -127,6 +128,7 @@ func SetupRoutes(
 	// Public routes (no authentication required)
 	RegisterAuthRoutes(api, authHand, jwtMiddleware)
 	RegisterUserRoutes(api, userHand) // Public user routes if any
+	NodeRoutes(api, nodeHand, jwtMiddleware)
 
 	// Protected routes (require session authentication)
 	RegisterProtectedUserRoutes(api, userHand, sessionAuthMiddleware)
